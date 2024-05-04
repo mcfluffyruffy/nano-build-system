@@ -1,45 +1,43 @@
 FROM nvcr.io/nvidia/l4t-base:r32.7.1
-
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 RUN apt-get install -y software-properties-common
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add -
-RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
 
 RUN apt-get install -y \
-    ca-certificates curl build-essential pkg-config libssl-dev zip unzip vim cmake v4l-utils openssh-client python3-pip 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    ca-certificates curl build-essential pkg-config libssl-dev zip unzip vim cmake v4l-utils openssh-client python3-pip wget
+
+# https://qengineering.eu/install-pytorch-on-jetson-nano.html
+RUN apt-get update && apt-get install -y \
+      libopenmpi-dev libomp-dev ccache \
+      libopenblas-dev libblas-dev libeigen3-dev \
+      libjpeg-dev \
+      gnupg2
+
+RUN apt-key adv --fetch-key http://repo.download.nvidia.com/jetson/jetson-ota-public.asc
+RUN echo 'deb https://repo.download.nvidia.com/jetson/common r32.7 main\n\
+deb https://repo.download.nvidia.com/jetson/t210 r32.7 main' > /etc/apt/sources.list.d/nvidia-l4t-apt-source.list
+RUN apt-get update && apt-get install -y nvidia-cuda nvidia-cudnn8
 
 RUN wget https://apt.llvm.org/llvm.sh
 RUN chmod +x llvm.sh
 RUN ./llvm.sh 17
 RUN ln -s /usr/bin/llvm-config-17 /usr/bin/llvm-config
 
-# 
-# install OpenCV (with CUDA)
-#
-ARG OPENCV_URL=https://nvidia.box.com/shared/static/5v89u6g5rb62fpz4lh0rz531ajo2t5ef.gz
-ARG OPENCV_DEB=OpenCV-4.5.0-aarch64.tar.gz
+RUN pip3 install -U jetson-stats
 
-RUN apt-get purge -y '*opencv*' || echo "previous OpenCV installation not found" && \
-    mkdir opencv && \
-    cd opencv && \
-    wget --quiet --show-progress --progress=bar:force:noscroll --no-check-certificate ${OPENCV_URL} -O ${OPENCV_DEB} && \
-    tar -xzvf ${OPENCV_DEB} && \
-    dpkg -i --force-depends *.deb && \
-    apt-get update && \
-    apt-get install -y -f --no-install-recommends && \
-    dpkg -i *.deb && \
-    rm -rf /var/lib/apt/lists/* && \
-    apt-get clean && \
-    cd ../ && \
-    rm -rf opencv && \
-    cp -r /usr/include/opencv4 /usr/local/include/opencv4 && \
-    cp -r /usr/lib/python3.6/dist-packages/cv2 /usr/local/lib/python3.6/dist-packages/cv2
 
-ADD ./install_tensorflow-2.4.1.sh /tmp
-RUN bash /tmp/install_tensorflow-2.4.1.sh
+#ADD cuda/include /usr/include/ 
+#ADD cuda/aarch64-linux-gnu/include /usr/include/aarch64-linux-gnu/ 
+#ADD cuda/aarch64-linux-gnu/lib /usr/lib/aarch64-linux-gnu/
+#RUN rm -r /usr/local/cuda-10.2/*
+#ADD cuda/local/cuda-10.2 /usr/local/cuda-10.2
+
+ADD install_opencv-4.9.0.sh /tmp
+RUN bash /tmp/install_opencv-4.9.0.sh
+
+ADD install_realsense.sh /tmp
+RUN bash /tmp/install_realsense.sh
 
 RUN export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
