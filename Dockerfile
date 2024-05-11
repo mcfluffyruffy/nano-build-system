@@ -26,15 +26,8 @@ RUN ln -s /usr/bin/llvm-config-17 /usr/bin/llvm-config
 
 RUN pip3 install -U jetson-stats
 
-
-#ADD cuda/include /usr/include/ 
-#ADD cuda/aarch64-linux-gnu/include /usr/include/aarch64-linux-gnu/ 
-#ADD cuda/aarch64-linux-gnu/lib /usr/lib/aarch64-linux-gnu/
-#RUN rm -r /usr/local/cuda-10.2/*
-#ADD cuda/local/cuda-10.2 /usr/local/cuda-10.2
-
-ADD install_opencv-4.9.0.sh /tmp
-RUN bash /tmp/install_opencv-4.9.0.sh
+ADD install_opencv-4.7.0.sh /tmp
+RUN bash /tmp/install_opencv-4.7.0.sh
 
 ADD install_realsense.sh /tmp
 RUN bash /tmp/install_realsense.sh

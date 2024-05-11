@@ -2,13 +2,13 @@ apt-get remove libopencv*
 apt-get purge libopencv*
 apt-get autoremove
 
-wget -O opencv.zip https://github.com/opencv/opencv/archive/4.9.0.zip
-wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.9.0.zip
+wget -O opencv.zip https://github.com/opencv/opencv/archive/4.7.0.zip
+wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.7.0.zip
 
 unzip opencv.zip
 unzip opencv_contrib.zip
-mv opencv-4.9.0 /opencv
-mv opencv_contrib-4.9.0 /opencv_contrib
+mv opencv-4.7.0 /opencv
+mv opencv_contrib-4.7.0 /opencv_contrib
 rm opencv.zip
 rm opencv_contrib.zip
 
@@ -37,6 +37,7 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
     -D WITH_GSTREAMER=ON \
     -D WITH_TBB=ON \
     -D BUILD_TBB=ON \
+    -D WITH_ONNX=ON \
     -D BUILD_TESTS=OFF \
     -D WITH_EIGEN=ON \
     -D WITH_V4L=ON \
